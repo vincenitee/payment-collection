@@ -13,34 +13,20 @@
     <!-- Feather Icons -->
     <script src="https://unpkg.com/feather-icons"></script>
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Custom JS -->
+    <script type="module" src="js/main.js"></script>
+
     <!-- Alpine JS -->
     <script src="//unpkg.com/alpinejs" defer></script>
 
     <!-- DataTables CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/2.2.1/css/dataTables.bootstrap5.min.css">
 
-
-    <style>
-        .navbar {
-            z-index: 99;
-        }
-
-        .icon{
-            width: 16px;
-        }
-
-        .logo{
-            width: 30px;
-            height: 30px;
-        }
-
-        .table{
-            font-size: 0.9rem;
-        }
-
-    </style>
+    <link rel="stylesheet" href="css/styles.css">
 </head>
-<body x-data x-init="feather.replace()">
+<body>
     <!-- Payment Modal -->
     <div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModal" aria-hidden="true">
         <div class="modal-dialog">
@@ -50,38 +36,46 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form x-data @submit.prevent="processPayment" id="paymentForm">
+                    <form
+                        x-data="$store.payments"
+                        @submit.prevent="processPayment"
+                        id="paymentForm"
+                    >
+                        
                         <!-- Student Name -->
-                        <label for="" class="form-label" style="font-size: 0.9rem">Student Name</label>
+                        <label for="studentName" class="form-label" style="font-size: 0.9rem">Student Name</label>
                         <div class="input-group mb-3">
-                            <div class="input-group-text is-invalid">
+                            <div class="input-group-text">
                                 <i class="icon" data-feather="user"></i>
                             </div>
                             <input 
-                                x-data
-                                x-model="$store.payments.studentName" 
+                                x-model="studentName"
                                 type="text" 
-                                class="form-control"  
+                                id="studentName"
+                                class="form-control" 
+                                autocomplete="off"
                                 required
                             >
                         </div>
 
-                        <label for="" class="form-label" style="font-size: 0.9rem">Amount Paid</label>
+                        <!-- Amount Paid -->
+                        <label for="amountPaid" class="form-label" style="font-size: 0.9rem">Amount Paid</label>
                         <div class="input-group mb-3">
                             <div class="input-group-text" style="width: 2.5rem;">
                                 ₱
                             </div>
                             <input 
-                                x-data
-                                x-model="$store.payments.amount" 
+                                x-model="amountPaid"
                                 type="number" 
+                                id="amountPaid"
                                 class="form-control" 
                                 required
                             >
                         </div>
 
+                        <!-- Submit Button -->
                         <div class="d-flex">
-                            <button class="ms-auto btn btn-sm btn-dark">
+                            <button type="submit" class="ms-auto btn btn-sm btn-dark">
                                 <i class="icon" data-feather="check-circle"></i>
                                 Submit
                             </button>
@@ -122,7 +116,7 @@
                         <span>Amount Collected</span>
                         <i data-feather="bar-chart-2"></i>
                     </div>
-                    <p>₱ <span>300</span></p>
+                    <p>₱ <span x-data x-text="$store.records.totalPayments"></span></p>
                 </div>
             </div>
             <div class="col-6 col-lg-3">
@@ -131,43 +125,76 @@
                         <span>Student Paid</span>
                         <i data-feather="user"></i>
                     </div>
-                    <p><span>1</span></p>
+                    <p><span x-data x-text="$store.records.paidStudentCount"></span></p>
                 </div>
             </div>
         </div>
 
         <!-- Students -->
-        <div class="card card-body">
-            <div 
-                x-data
-                x-init="new DataTable($refs.paymentTable, {paging: false, searching: true, ordering: true, info: true})">
-                <table
-                    x-ref="paymentTable" 
-                    class="table table-hover table-striped">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Student Name</th>
-                            <th>Amount Paid</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <span>Student</span>
+                        <button x-data @click="$store.records.deleteAll()" class="btn btn-sm btn-danger" :disabled="$store.records.payments.length == 0">Delete All</button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div 
+                    x-data="$store.records"
+                    x-init="retrieveAll()"
+                    class="table-responsive p-2">
 
-                    <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>Vincent Bolinget</td>
-                            <td>40</td>
-                            <td>
-                                <button class="btn btn-sm btn-danger"><i class="icon" data-feather="trash"></i></button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                    <!-- Search Bar -->
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" placeholder="Search for student name..." x-data x-model="$store.records.search" @input="$store.records.filterPayments">
+                        <div class="input-group-text">
+                            <i class="icon" data-feather="search"></i>
+                        </div>
+                    </div>
+
+                    <table
+                        class="table table-hover table-striped table-bordered shadow-sm">
+                        <thead class="bg-primary text-white text-center">
+                            <tr>
+                                <th>Student</th>
+                                <th>Amount</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr x-cloak x-show="payments.length === 0 || filteredPayments.length === 0">
+                                <td colspan="4">
+                                    <div class="d-flex gap-1 justify-content-center align-items-center">
+                                        <i data-feather="help-circle" class="icon me-2"></i>
+                                        <span>No records found</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <template x-for="row in filteredPayments" :key="row.id">
+                                <tr>
+                                    <td class="align-middle" x-text="row.name"></td>
+                                    <td class="align-middle" x-text="row.amount">₱ <span >40</span></td>
+                                    <td class="align-middle" x-text="row.date"></td>
+                                    <td class="text-center">
+                                        <button 
+                                            @click="$store.records.delete(row.id)"
+                                            class="btn btn-sm btn-danger">
+                                            Delete
+                                        </button>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+
             </div>
         </div>
     </div>
-    
+
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
 
@@ -180,7 +207,5 @@
     <!-- DataTables Bootstrap 5 Integration JS -->
     <script src="https://cdn.datatables.net/2.2.1/js/dataTables.bootstrap5.js"></script>
 
-    <!-- Custom JS -->
-    <script src="js/main.js"></script>
 </body>
 </html>
