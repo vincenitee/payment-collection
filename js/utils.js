@@ -27,6 +27,7 @@ export function showConfirmationModal(actionName = 'delete', callback) {
         cancelButtonColor: '#3085d6',
         confirmButtonText: `Yes, ${actionName}!`,
         cancelButtonText: 'Cancel',
+        
     }).then((result) => {
         if (result.isConfirmed) {
             // Call the callback function if the user confirms

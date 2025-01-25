@@ -18,3 +18,22 @@
 .table{
     font-size: 0.9rem;
 }
+
+.swal2-popup {
+    max-width: 300px !important; /* Adjust width */
+    padding: 1rem !important;
+}
+.swal2-title {
+    font-size: 1.2rem !important; /* Adjust title size */
+}
+.swal2-actions button {
+     font-size: 0.9rem !important; /* Adjust button size */
+    padding: 0.4rem 0.8rem !important;
+}
+
+@media (max-width: 768px) {
+    .table-responsive {
+        max-height: calc(100vh - 120px); /* Subtract some space to make room for the keyboard */
+        overflow-y: auto;
+    }
+}
