@@ -6,7 +6,14 @@ feather.replace();
 document.addEventListener('alpine:init', () => {
     Alpine.store('payments', {
         studentName: '',
-        amountPaid: 0,
+
+        amountPaid: (() => {
+            const storedValue = localStorage.getItem('baseAmount');
+            return storedValue !== null && !isNaN(parseFloat(storedValue)) 
+                ? parseFloat(storedValue) 
+                : 20;
+        })(),
+
         processPayment() {
             const paymentData = {
                 id: generateUniqueId('student'),
@@ -20,20 +27,34 @@ document.addEventListener('alpine:init', () => {
             showModal('success', 'Payment recorded successfully');
             
             this.studentName = '';
-            this.amountPaid = '';
         },
+
+        updateBaseAmount(amount) {
+            if (amount <= 0) {
+                showModal('error', 'Base amount must be greater than 0')
+                return;
+            }
+
+            // Inserts the value to the local storage
+            localStorage.setItem('baseAmount', parseFloat(amount))
+
+            // Show a success message
+            showModal('success', 'Base amount has been updated successfully!')
+
+            this.amountPaid;
+        }
     });
 
     Alpine.store('records', {
         payments: [],
         filteredPayments: [],
-        search: '',
+        search: 'asd',
 
         retrieveAll() {
             const payments = JSON.parse(localStorage.getItem('payments')) || [];
 
             // Sort by date
-            payments.sort((a, b) => new Date(a.date) - new Date(b.date));
+            payments.sort((a, b) => new Date(b.date) - new Date(a.date));
 
             this.payments = payments;
             this.filteredPayments = payments; // Initialize filteredPayments with all payments

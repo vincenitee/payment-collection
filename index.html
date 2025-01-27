@@ -91,6 +91,43 @@
         </div>
     </div>
 
+    <!-- Settings Offcanvas -->
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="settingsOffCanvas" data-bs-backdrop="false" style="max-width: 250px;">
+        <!-- Offcanvas Header -->
+        <div class="offcanvas-header border-bottom">
+            <h5 class="offcanvas-title">Settings</h5>
+            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+
+        <!-- Offcanvas Body -->
+        <div class="offcanvas-body">
+            <!-- Payment Form -->
+            <form x-data @submit.prevent="$store.payments.updateBaseAmount($refs.paymentInput.value)" class="mb-4">
+                <label for="payment-input" class="form-label">Payment</label>
+                <input 
+                    x-ref="paymentInput"
+                    x-model="$store.payments.amountPaid"
+                    type="number" 
+                    id="payment-input" 
+                    class="form-control mb-3"  
+                    >
+                <button class="btn btn-sm btn-dark w-100">Save Changes</button>
+            </form>
+
+            <hr class="my-3">
+
+            <!-- Delete All Button -->
+            <button 
+                x-data 
+                @click="$store.records.deleteAll()" 
+                class="btn btn-sm btn-danger w-100" 
+                :disabled="$store.records.payments.length == 0">
+                Delete All Records
+            </button>
+        </div>
+    </div>
+
+
     <!-- Navigation Bar -->
     <nav class="navbar mb-3 navbar-expand-lg bg-dark position-sticky top-0" data-bs-theme="dark">
         <div class="container">
@@ -106,6 +143,11 @@
                 <button class="btn btn-sm btn-outline-light d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#paymentModal">
                     <i class="icon me-1" data-feather="plus-circle"></i>
                     Add Payment
+                </button>
+
+                <!-- Offcanvas Toggle -->
+                <button class="btn btn-sm btn-outline-light" data-bs-toggle="offcanvas" data-bs-target="#settingsOffCanvas">
+                    <i class="icon" data-feather="settings"></i>
                 </button>
             </div>
         </div>
@@ -144,23 +186,14 @@
                 </div>
             </div>
         </div>
-        
 
         <!-- Students -->
         <div class="card">
-            <div class="card-header">
-                <div class="card-title">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <span>Student</span>
-                        <button x-data @click="$store.records.deleteAll()" class="btn btn-sm btn-danger" :disabled="$store.records.payments.length == 0">Delete All</button>
-                    </div>
-                </div>
-            </div>
             <div class="card-body">
                 <div 
                     x-data="$store.records"
                     x-init="retrieveAll()"
-                    class="table-responsive p-2">
+                    class="table-responsive p-2" style="max-height: 50vh;">
 
                     <!-- Search Bar -->
                     <div class="input-group mb-3">
