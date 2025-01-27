@@ -48,7 +48,7 @@ document.addEventListener('alpine:init', () => {
     Alpine.store('records', {
         payments: [],
         filteredPayments: [],
-        search: 'asd',
+        search: '',
 
         retrieveAll() {
             const payments = JSON.parse(localStorage.getItem('payments')) || [];
