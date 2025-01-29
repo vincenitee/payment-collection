@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payment Collection</title>
+    <title>Print</title>
 
     <!-- Favicon -->
     <link rel="shortcut icon" href="image/ccs-logo-w-bg.png" type="image/x-icon">
@@ -28,10 +28,61 @@
     <!-- DataTables CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/2.2.1/css/dataTables.bootstrap5.min.css">
 
-    <!-- Custome CSS -->
+    <!-- Custom CSS -->
     <link rel="stylesheet" href="css/styles.css">
 </head>
-<body>
-    
+<body x-data x-init="printAndGoBack()" class="container-fluid">
+    <table
+        x-data="{
+            payments: JSON.parse(localStorage.getItem('payments')) || [], 
+            get totalStudents() {
+                return this.payments.length;
+            },
+            get totalAmountCollected() {
+                return this.payments.reduce((sum, payment) => sum + payment.amount, 0);
+            }
+        }"
+        class="table table-bordered"
+    >
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Student</th>
+                <th>Amount Paid</th>
+                <th>Date Paid</th>
+            </tr>
+        </thead>
+        <tbody
+        >
+            <template x-for="(row, index) in payments" :key="row.id">
+                <tr>
+                    <td x-text="++index"></td>
+                    <td x-text="row.name"></td>
+                    <td>₱ <span x-text="row.amount"></span></td>
+                    <td x-text="row.date"></td>
+                </tr>
+            </template>
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="2">Total Students:</td>
+                <td colspan="2" x-text="totalStudents"></td>
+            </tr>
+            <tr>
+                <td colspan="2">Total Amount Collected:</td>
+                <td colspan="2">₱ <span x-text="totalAmountCollected"></span></td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <script>
+        function printAndGoBack(){
+            window.print();
+
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 500);
+        }
+    </script>
 </body>
 </html>
